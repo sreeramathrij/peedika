@@ -6,6 +6,7 @@ import {
   removeItem,
   clearCart
 } from "../controllers/cartController";
+import { getGreenerCart, swapCartItem } from "../controllers/greenerCartController";
 import { protect } from "../middleware/auth";
 
 const router = Router();
@@ -17,5 +18,8 @@ router.post("/", addToCart);
 router.patch("/", updateQuantity);
 router.delete("/:productId", removeItem);
 router.delete("/", clearCart);
+
+router.get("/greener", protect, getGreenerCart);
+router.post("/swap", swapCartItem);
 
 export default router;
