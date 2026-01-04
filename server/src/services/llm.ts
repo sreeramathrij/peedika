@@ -1,46 +1,52 @@
 import OpenAI from "openai";
+import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
-const openai = new OpenAI({
+
+const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
 export const generateCopilotResponse = async (
   userMessage: string,
-  structuredContext: any
-) => {
-  const systemPrompt = `
-You are an eco-shopping sustainability assistant inside a web app.
-Your job is to help users choose greener products in a positive, supportive tone.
+  structuredContext: any,
+  history: { role: "user" | "assistant"; content: string }[] = []
+): Promise<string> => {
 
-Rules:
-- Only use the product data provided in the context.
-- Do NOT invent facts or product details.
-- Explain sustainability in simple, friendly language.
-- Encourage — never shame.
-- Keep responses concise but helpful.
-- If unsure, ask a clarification question.
+  const messages: ChatCompletionMessageParam[] = [
+    {
+      role: "system",
+      content: `
+You are an eco-shopping assistant inside a sustainability ecommerce platform.
 
-You can reference:
-eco score, materials, alternatives, impact, price, keywords.
-  `;
+You MUST follow these rules exactly:
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4.1-mini",
-    messages: [
-      { role: "system", content: systemPrompt },
-      {
-        role: "user",
-        content: `
-User message:
+1. ONLY use the information provided in the JSON context.
+2. If the answer requires information NOT in the JSON, reply:
+   "I don’t have enough information to answer that, but here’s what I can tell you based on the product data."
+3. Do NOT guess or invent product attributes, claims, statistics, or certifications.
+4. Keep replies friendly and 3–6 sentences.
+5. Never shame the user. Encourage positive choices only.
+6. If the user asks for medical, legal, or health claims — refuse politely.
+`
+    },
+    ...history.slice(-8), // keep memory lightweight
+    {
+      role: "user",
+      content: `
+User Message:
 ${userMessage}
 
-Context data (JSON):
+Context JSON (use ONLY this data):
 ${JSON.stringify(structuredContext, null, 2)}
-        `
-      }
-    ],
-    temperature: 0.5
+`
+    }
+  ];
+
+  const completion = await client.chat.completions.create({
+    model: "gpt-4.1-mini",
+    messages,
+    temperature: 0.3 // lower = safer
   });
 
-  return response.choices[0]?.message?.content ?? "Unable to generate response.";
+  return completion.choices[0]?.message?.content ?? "";
 };
