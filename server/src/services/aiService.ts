@@ -1,4 +1,4 @@
-import { IProduct } from "../types/Product";
+import { IProduct } from "../models/Product";
 
 export const generateExplanation = (
   product: IProduct,
