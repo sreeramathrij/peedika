@@ -5,16 +5,25 @@
  * Displays mission statement and copyright
  */
 
+import Image from "next/image";
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <footer className="bg-white border-t border-border-base mt-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div>
-            <h3 className="text-lg font-semibold text-text-charcoal mb-2">
-              Peedika
-            </h3>
+            <Link href="/" className="inline-block mb-3">
+              <Image
+                src="/peedika.png"
+                alt="Peedika - Sustainable Future"
+                width={140}
+                height={45}
+                className="h-12 w-auto"
+              />
+            </Link>
             <p className="text-sm text-text-muted leading-relaxed">
               Making sustainable shopping accessible and transparent.
             </p>

@@ -184,9 +184,9 @@ const CardNav: React.FC<CardNavProps> = ({
             </div>
 
             {/* Logo */}
-            <div className="logo-container">
+            <Link href="/" className="logo-container">
               <Image src={logo} alt={logoAlt} width={180} height={60} className="h-16 w-auto" priority />
-            </div>
+            </Link>
           </div>
 
           {/* Right Side - Placeholder for external actions */}

@@ -10,7 +10,7 @@
  */
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "@/lib/cart-context";
 import { useAuth } from "@/lib/auth-context";
 import CardNav from "./CardNav";
@@ -53,9 +53,23 @@ export default function Navbar() {
   const { totalItems } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-white shadow-sm">
+    <header className={`sticky top-0 z-50 transition-all duration-300 ${
+      isScrolled
+        ? 'bg-white/80 backdrop-blur-md shadow-lg'
+        : 'bg-white shadow-sm'
+    }`}>
       {/* Announcement Banner */}
       <div className="bg-eco-forest text-white py-2.5 px-4 text-center">
         <p className="text-sm font-medium tracking-wide">
@@ -70,7 +84,7 @@ export default function Navbar() {
             logo="/peedika.png"
             logoAlt="Peedika - Sustainable Future"
             items={menuItems}
-            baseColor="#ffffff"
+            baseColor="transparent"
             menuColor="#1f2933"
             ease="power3.out"
           />
