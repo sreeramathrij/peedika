@@ -7,7 +7,7 @@
  * Authenticates user and redirects to home or previous page
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
@@ -27,10 +27,11 @@ export default function SigninPage() {
   const redirect = searchParams.get("redirect") || "/";
 
   // Redirect if already authenticated
-  if (isAuthenticated) {
-    router.push(redirect);
-    return null;
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push(redirect);
+    }
+  }, [isAuthenticated, redirect, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,11 +141,10 @@ export default function SigninPage() {
           </p>
         </div>
 
-        {/* Demo Notice */}
+        {/* Security Notice */}
         <div className="mt-8 p-4 bg-eco-sage/10 border border-eco-sage/20 rounded-lg">
           <p className="text-xs text-text-muted text-center">
-            <strong>Demo Notice:</strong> This is a frontend-only authentication
-            system for demonstration purposes.
+            Your session is secured with JWT authentication and HTTP-only cookies.
           </p>
         </div>
       </div>

@@ -10,14 +10,42 @@
 import Link from "next/link";
 import Image from "next/image";
 import Button from "@/components/Button";
-import { products } from "@/lib/products";
+import { Product } from "@/lib/products";
 import EcoScoreBadge from "@/components/EcoScoreBadge";
+import { useState, useEffect } from "react";
+import { api } from "@/lib/api";
 
 export default function Home() {
-  // Get sample products for different sections
-  const recentlyViewed = products.slice(0, 4);
-  const recommended = products.slice(4, 8);
-  const topDeals = products.slice(8, 12);
+  const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
+  const [recommended, setRecommended] = useState<Product[]>([]);
+  const [topDeals, setTopDeals] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response: any = await api.getProducts({ limit: 12 });
+        const fetchedProducts = response.products || [];
+
+        // Normalize product IDs (_id -> id) and ensure image exists
+        const normalizedProducts = fetchedProducts.map((p: Product) => ({
+          ...p,
+          id: p._id || p.id,
+          image: p.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80"
+        }));
+
+        setRecentlyViewed(normalizedProducts.slice(0, 4));
+        setRecommended(normalizedProducts.slice(4, 8));
+        setTopDeals(normalizedProducts.slice(8, 12));
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
   const categories = [
     {
       name: "Accessories",
@@ -83,7 +111,17 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {recentlyViewed.map((product) => (
+            {isLoading ? (
+              // Loading skeleton
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="aspect-square rounded-lg bg-gray-200 mb-2" />
+                  <div className="h-4 bg-gray-200 rounded mb-1" />
+                  <div className="h-6 bg-gray-200 rounded w-1/2" />
+                </div>
+              ))
+            ) : (
+              recentlyViewed.map((product) => (
               <Link
                 key={product.id}
                 href={`/product/${product.id}`}
@@ -91,7 +129,7 @@ export default function Home() {
               >
                 <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 mb-2">
                   <Image
-                    src={product.image}
+                    src={product.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80"}
                     alt={product.name}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform"
@@ -108,7 +146,8 @@ export default function Home() {
                   ${product.price}
                 </p>
               </Link>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -128,32 +167,42 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {recommended.map((product) => (
-              <Link
-                key={product.id}
-                href={`/product/${product.id}`}
-                className="group"
-              >
-                <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 mb-2">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform"
-                    sizes="(max-width: 768px) 50vw, 25vw"
-                  />
-                  <div className="absolute top-2 right-2">
-                    <EcoScoreBadge score={product.eco_score} size="small" />
-                  </div>
+            {isLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="aspect-square rounded-lg bg-gray-200 mb-2" />
+                  <div className="h-4 bg-gray-200 rounded mb-1" />
+                  <div className="h-6 bg-gray-200 rounded w-1/2" />
                 </div>
-                <h3 className="text-sm font-medium text-text-charcoal line-clamp-2 mb-1">
-                  {product.name}
-                </h3>
-                <p className="text-lg font-bold text-eco-forest">
-                  ${product.price}
-                </p>
-              </Link>
-            ))}
+              ))
+            ) : (
+              recommended.map((product) => (
+                <Link
+                  key={product.id}
+                  href={`/product/${product.id}`}
+                  className="group"
+                >
+                  <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 mb-2">
+                    <Image
+                      src={product.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80"}
+                      alt={product.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform"
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                    />
+                    <div className="absolute top-2 right-2">
+                      <EcoScoreBadge score={product.eco_score} size="small" />
+                    </div>
+                  </div>
+                  <h3 className="text-sm font-medium text-text-charcoal line-clamp-2 mb-1">
+                    {product.name}
+                  </h3>
+                  <p className="text-lg font-bold text-eco-forest">
+                    ${product.price}
+                  </p>
+                </Link>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -204,35 +253,45 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {topDeals.map((product) => (
-              <Link
-                key={product.id}
-                href={`/product/${product.id}`}
-                className="group"
-              >
-                <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 mb-2">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform"
-                    sizes="(max-width: 768px) 50vw, 25vw"
-                  />
-                  <div className="absolute top-2 left-2 bg-eco-low text-white text-xs font-bold px-2 py-1 rounded">
-                    DEAL
-                  </div>
-                  <div className="absolute top-2 right-2">
-                    <EcoScoreBadge score={product.eco_score} size="small" />
-                  </div>
+            {isLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="aspect-square rounded-lg bg-gray-200 mb-2" />
+                  <div className="h-4 bg-gray-200 rounded mb-1" />
+                  <div className="h-6 bg-gray-200 rounded w-1/2" />
                 </div>
-                <h3 className="text-sm font-medium text-text-charcoal line-clamp-2 mb-1">
-                  {product.name}
-                </h3>
-                <p className="text-lg font-bold text-eco-forest">
-                  ${product.price}
-                </p>
-              </Link>
-            ))}
+              ))
+            ) : (
+              topDeals.map((product) => (
+                <Link
+                  key={product.id}
+                  href={`/product/${product.id}`}
+                  className="group"
+                >
+                  <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 mb-2">
+                    <Image
+                      src={product.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80"}
+                      alt={product.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform"
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                    />
+                    <div className="absolute top-2 left-2 bg-eco-low text-white text-xs font-bold px-2 py-1 rounded">
+                      DEAL
+                    </div>
+                    <div className="absolute top-2 right-2">
+                      <EcoScoreBadge score={product.eco_score} size="small" />
+                    </div>
+                  </div>
+                  <h3 className="text-sm font-medium text-text-charcoal line-clamp-2 mb-1">
+                    {product.name}
+                  </h3>
+                  <p className="text-lg font-bold text-eco-forest">
+                    ${product.price}
+                  </p>
+                </Link>
+              ))
+            )}
           </div>
         </div>
       </section>

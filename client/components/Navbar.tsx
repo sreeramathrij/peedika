@@ -168,8 +168,8 @@ export default function Navbar() {
                     </div>
                     <div className="border-t border-border-base py-2">
                       <button
-                        onClick={() => {
-                          logout();
+                        onClick={async () => {
+                          await logout();
                           setShowUserMenu(false);
                         }}
                         className="block w-full text-left px-4 py-2.5 text-sm text-eco-low hover:bg-eco-low/10 transition-colors font-medium"

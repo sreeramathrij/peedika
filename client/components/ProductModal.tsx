@@ -13,6 +13,8 @@ import Image from "next/image";
 import EcoScoreBadge from "./EcoScoreBadge";
 import Button from "./Button";
 import EcoBreakdown from "./EcoBreakdown";
+import { useCart } from "@/lib/cart-context";
+import { useState } from "react";
 
 interface ProductModalProps {
   product: Product;
@@ -45,6 +47,17 @@ export const CloseIcon = () => {
 };
 
 export default function ProductModal({ product, layoutId, onClose }: ProductModalProps) {
+  const { addToCart } = useCart();
+  const [addedToCart, setAddedToCart] = useState(false);
+
+  const handleAddToCart = () => {
+    const success = addToCart(product);
+    if (success) {
+      setAddedToCart(true);
+      setTimeout(() => setAddedToCart(false), 2000);
+    }
+  };
+
   return (
     <div className="fixed inset-0 grid place-items-center z-[100] p-4">
       {/* Close Button */}
@@ -68,7 +81,7 @@ export default function ProductModal({ product, layoutId, onClose }: ProductModa
         {/* Image Section */}
         <motion.div layoutId={`image-${layoutId}`} className="relative w-full aspect-video flex-shrink-0 overflow-hidden">
           <Image
-            src={product.image}
+            src={product.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80"}
             alt={product.name}
             fill
             className="object-cover"
@@ -169,13 +182,10 @@ export default function ProductModal({ product, layoutId, onClose }: ProductModa
             >
               <Button
                 variant="primary"
-                onClick={() => {
-                  // Add to cart logic would go here
-                  console.log("Add to cart:", product.id);
-                }}
+                onClick={handleAddToCart}
                 className="flex-1"
               >
-                Add to Cart
+                {addedToCart ? "✓ Added to Cart" : "Add to Cart"}
               </Button>
               <Button
                 variant="secondary"

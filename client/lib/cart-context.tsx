@@ -5,11 +5,14 @@
  *
  * Manages cart state across the application using React Context API
  * Provides functions to add, remove, and update cart items
+ * Requires authentication for cart operations
  * Persists cart data in localStorage (client-side only)
  */
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { Product } from "./products";
+import { useAuth } from "./auth-context";
 
 export interface CartItem extends Product {
   quantity: number;
@@ -17,7 +20,7 @@ export interface CartItem extends Product {
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (product: Product) => void;
+  addToCart: (product: Product) => boolean;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -30,6 +33,8 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -51,7 +56,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items, isLoaded]);
 
-  const addToCart = (product: Product) => {
+  const addToCart = (product: Product): boolean => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      // Redirect to signin page with return URL
+      router.push(`/signin?redirect=/products`);
+      return false;
+    }
+
     setItems((currentItems) => {
       const existingItem = currentItems.find((item) => item.id === product.id);
 
@@ -67,6 +79,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return [...currentItems, { ...product, quantity: 1 }];
       }
     });
+
+    return true;
   };
 
   const removeFromCart = (productId: string) => {

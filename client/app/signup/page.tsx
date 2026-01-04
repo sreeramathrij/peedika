@@ -7,7 +7,7 @@
  * Creates new account and automatically signs in
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
@@ -24,10 +24,11 @@ export default function SignupPage() {
   const router = useRouter();
 
   // Redirect if already authenticated
-  if (isAuthenticated) {
-    router.push("/");
-    return null;
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/");
+    }
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,11 +152,10 @@ export default function SignupPage() {
           </p>
         </div>
 
-        {/* Demo Notice */}
+        {/* Security Notice */}
         <div className="mt-8 p-4 bg-eco-sage/10 border border-eco-sage/20 rounded-lg">
           <p className="text-xs text-text-muted text-center">
-            <strong>Demo Notice:</strong> This is a frontend-only authentication
-            system for demonstration purposes. Data is stored in localStorage.
+            Your password is securely hashed and your session is protected with JWT authentication.
           </p>
         </div>
       </div>

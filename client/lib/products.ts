@@ -1,15 +1,12 @@
 /**
- * Mock Product Data for Sustainable Ecommerce Platform
+ * Product Type Definition
  *
- * Schema matches backend Product model:
- * - name, brand, category, price, description
- * - materials (array), packaging, shipping_type
- * - eco_tags (array), eco_score
- * - image
+ * Matches backend Product model from MongoDB
  */
 
 export interface Product {
-  id: string;
+  _id?: string; // MongoDB ID
+  id?: string;  // For frontend compatibility
   name: string;
   brand: string;
   category: string;
@@ -20,7 +17,22 @@ export interface Product {
   shipping_type: string;
   eco_tags: string[];
   eco_score: number;
-  image: string;
+  eco_breakdown?: {
+    materials: number;
+    ethics: number;
+    packaging: number;
+    shipping: number;
+    lifespan: number;
+  };
+  ai_label?: "high" | "medium" | "low";
+  ai_confidence?: number;
+  ai_keywords?: {
+    positive: string[];
+    negative: string[];
+  };
+  image?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export const products: Product[] = [

@@ -23,7 +23,7 @@ const products = [
     ai_label: "high",
     ai_confidence: 0.82,
     ai_keywords: { positive: ["organic", "ethical"], negative: [] },
-    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab"
+    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80"
   },
   {
     name: "Polyester Men's Graphic Tee",
@@ -40,7 +40,7 @@ const products = [
     ai_label: "low",
     ai_confidence: 0.87,
     ai_keywords: { positive: [], negative: ["polyester"] },
-    image: "https://images.unsplash.com/photo-1520975698519-59c05e3e4c2a"
+    image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80"
   },
   {
     name: "Recycled Denim Jeans",
@@ -57,7 +57,7 @@ const products = [
     ai_label: "high",
     ai_confidence: 0.74,
     ai_keywords: { positive: ["recycled"], negative: [] },
-    image: "https://images.unsplash.com/photo-1542272604-787c3835535d"
+    image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=800&q=80"
   },
 
   // -------- WOMEN'S FASHION --------
@@ -76,7 +76,7 @@ const products = [
     ai_label: "high",
     ai_confidence: 0.86,
     ai_keywords: { positive: ["organic", "linen"], negative: [] },
-    image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9"
+    image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&q=80"
   },
   {
     name: "Fast Fashion Party Dress",
@@ -93,7 +93,7 @@ const products = [
     ai_label: "low",
     ai_confidence: 0.9,
     ai_keywords: { positive: [], negative: ["synthetic"] },
-    image: "https://images.unsplash.com/photo-1520975698519-59c05e3e4c2a"
+    image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&q=80"
   },
 
   // -------- MOBILE & COMPUTERS --------
@@ -112,7 +112,7 @@ const products = [
     ai_label: "medium",
     ai_confidence: 0.71,
     ai_keywords: { positive: ["recycled"], negative: [] },
-    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9"
+    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&q=80"
   },
   {
     name: "Standard Budget Smartphone",
@@ -129,7 +129,7 @@ const products = [
     ai_label: "low",
     ai_confidence: 0.78,
     ai_keywords: { positive: [], negative: ["plastic"] },
-    image: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5"
+    image: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=800&q=80"
   },
   {
     name: "Energy-Efficient Laptop",
@@ -146,7 +146,7 @@ const products = [
     ai_label: "medium",
     ai_confidence: 0.7,
     ai_keywords: { positive: ["energy efficient"], negative: [] },
-    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
+    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&q=80"
   },
 
   // -------- ELECTRONICS --------
@@ -165,7 +165,7 @@ const products = [
     ai_confidence: 0.68,
     ai_keywords: { positive: ["energy efficient"], negative: [] },
     eco_breakdown: { materials: 15, ethics: 12, packaging: 12, shipping: 10, lifespan: 14 },
-    image: "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04"
+    image: "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=800&q=80"
   },
   {
     name: "Halogen Desk Lamp",
@@ -182,7 +182,7 @@ const products = [
     ai_confidence: 0.63,
     ai_keywords: { positive: [], negative: [] },
     eco_breakdown: { materials: 10, ethics: 10, packaging: 9, shipping: 8, lifespan: 8 },
-    image: "https://images.unsplash.com/photo-1582719478188-d6185c92c6eb"
+    image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=800&q=80"
   },
 
   // -------- HOME APPLIANCES --------
@@ -201,7 +201,7 @@ const products = [
     ai_confidence: 0.8,
     ai_keywords: { positive: ["energy efficient"], negative: [] },
     eco_breakdown: { materials: 20, ethics: 16, packaging: 14, shipping: 12, lifespan: 16 },
-    image: "https://images.unsplash.com/photo-1591293836025-079d6d7a1e1f"
+    image: "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=800&q=80"
   },
   {
     name: "Standard Refrigerator",
@@ -218,7 +218,7 @@ const products = [
     ai_confidence: 0.6,
     ai_keywords: { positive: [], negative: [] },
     eco_breakdown: { materials: 12, ethics: 10, packaging: 10, shipping: 8, lifespan: 10 },
-    image: "https://images.unsplash.com/photo-1606813884155-9c3fc8ca7c12"
+    image: "https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=800&q=80"
   },
 
   // -------- HOME & LIVING --------
@@ -237,7 +237,7 @@ const products = [
     ai_confidence: 0.93,
     ai_keywords: { positive: ["biodegradable", "natural"], negative: [] },
     eco_breakdown: { materials: 28, ethics: 18, packaging: 16, shipping: 12, lifespan: 18 },
-    image: "https://images.unsplash.com/photo-1574269909861-73c8a1f5c7d0"
+    image: "https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?w=800&q=80"
   },
   {
     name: "Plastic Toothbrush",
@@ -254,7 +254,7 @@ const products = [
     ai_confidence: 0.9,
     ai_keywords: { positive: [], negative: ["plastic"] },
     eco_breakdown: { materials: 6, ethics: 6, packaging: 6, shipping: 5, lifespan: 5 },
-    image: "https://images.unsplash.com/photo-1580476262798-bddd9f4b51b1"
+    image: "https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?w=800&q=80"
   },
 
   // -------- PERSONAL CARE --------
@@ -273,7 +273,7 @@ const products = [
     ai_confidence: 0.78,
     ai_keywords: { positive: ["refillable"], negative: [] },
     eco_breakdown: { materials: 20, ethics: 14, packaging: 14, shipping: 10, lifespan: 18 },
-    image: "https://images.unsplash.com/photo-1619451334796-8b9f6560c58a"
+    image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800&q=80"
   },
   {
     name: "Disposable Shampoo Sachet",
@@ -290,7 +290,7 @@ const products = [
     ai_confidence: 0.92,
     ai_keywords: { positive: [], negative: ["single-use", "plastic"] },
     eco_breakdown: { materials: 6, ethics: 5, packaging: 5, shipping: 4, lifespan: 2 },
-    image: "https://images.unsplash.com/photo-1601043388924-e3b3a3c7a90f"
+    image: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=800&q=80"
   },
 
   // -------- GROCERIES --------
@@ -309,7 +309,7 @@ const products = [
     ai_confidence: 0.8,
     ai_keywords: { positive: ["organic"], negative: [] },
     eco_breakdown: { materials: 22, ethics: 18, packaging: 14, shipping: 12, lifespan: 17 },
-    image: "https://images.unsplash.com/photo-1586201375754-42459e037386"
+    image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&q=80"
   },
   {
     name: "White Rice in Plastic Bag",
@@ -326,7 +326,7 @@ const products = [
     ai_confidence: 0.78,
     ai_keywords: { positive: [], negative: ["plastic"] },
     eco_breakdown: { materials: 10, ethics: 9, packaging: 10, shipping: 8, lifespan: 9 },
-    image: "https://images.unsplash.com/photo-1582192730841-2c39f7fcbdc7"
+    image: "https://images.unsplash.com/photo-1516684732162-798a0062be99?w=800&q=80"
   }
 
   // 👆 you now have ~25+ (duplicate and vary)

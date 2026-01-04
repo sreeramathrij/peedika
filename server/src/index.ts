@@ -12,7 +12,11 @@ import cartRoutes from "./routes/cartRoutes"
 
 const app: Application = express();
 
-app.use(cors());
+// CORS configuration to allow credentials (cookies)
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  credentials: true,
+}));
 app.use(cookieParser());
 app.use(express.json());
 

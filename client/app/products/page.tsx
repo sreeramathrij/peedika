@@ -9,19 +9,48 @@
 
 import { useState, useEffect, useId, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { products, getCategories, Product } from "@/lib/products";
+import { Product } from "@/lib/products";
 import ProductCard from "@/components/ProductCard";
 import ProductModal from "@/components/ProductModal";
 import { useOutsideClick } from "@/hooks/use-outside-click";
+import { api } from "@/lib/api";
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [minEcoScore, setMinEcoScore] = useState<number>(0);
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
   const id = useId();
   const ref = useRef<HTMLDivElement>(null);
 
-  const categories = getCategories();
+  // Fetch all products from backend
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response: any = await api.getProducts({ limit: 100 });
+        const fetchedProducts = response.products || [];
+
+        // Normalize product IDs (_id -> id) and ensure image exists
+        const normalizedProducts = fetchedProducts.map((p: Product) => ({
+          ...p,
+          id: p._id || p.id,
+          image: p.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80"
+        }));
+
+        setProducts(normalizedProducts);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Get unique categories from products
+  const categories = Array.from(new Set(products.map(p => p.category)));
 
   // Handle ESC key and body scroll
   useEffect(() => {
@@ -146,7 +175,18 @@ export default function ProductsPage() {
         </div>
 
         {/* Product Grid */}
-        {filteredProducts.length > 0 ? (
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-square rounded-lg bg-gray-200 mb-3" />
+                <div className="h-4 bg-gray-200 rounded mb-2" />
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+                <div className="h-6 bg-gray-200 rounded w-1/2" />
+              </div>
+            ))}
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
               <ProductCard
