@@ -48,6 +48,7 @@ export const addToCart = async (req: AuthRequest, res: Response) => {
   cart.cartEcoScore = computeCartEcoScore(cart);
 
   await cart.save();
+  await cart.populate("items.product");
 
   res.status(201).json(cart);
 };
@@ -74,6 +75,7 @@ export const updateQuantity = async (req: AuthRequest, res: Response) => {
 
   cart.cartEcoScore = computeCartEcoScore(cart);
   await cart.save();
+  await cart.populate("items.product");
 
   res.json(cart);
 };
@@ -84,12 +86,9 @@ export const removeItem = async (req: AuthRequest, res: Response) => {
   const cart = await Cart.findOne({ user: req.user._id });
   if (!cart) return res.status(404).json({ message: "Cart not found" });
 
-  cart.items = cart.items.filter(
-    (i) => i.product.toString() !== productId
-  );
-
   cart.cartEcoScore = computeCartEcoScore(cart);
   await cart.save();
+  await cart.populate("items.product");
 
   res.json(cart);
 };

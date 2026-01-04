@@ -79,7 +79,7 @@ export default function CartPage() {
           Shopping Cart
         </h1>
         <button
-          onClick={clearCart}
+          onClick={() => void clearCart()}
           className="text-sm text-text-muted hover:text-eco-low transition-colors"
         >
           Clear Cart

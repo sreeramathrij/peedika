@@ -38,8 +38,9 @@ export default function ProductCard({ product, onClick, layoutId }: ProductCardP
                 src={product.image}
                 alt={product.name}
                 fill
+                quality={75}
                 className="object-cover group-hover/card:scale-105 transition-transform duration-300"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                sizes="(max-width: 768px) 90vw, (max-width: 1200px) 45vw, 30vw"
               />
 
               {/* Eco Score Badge - Positioned on image */}

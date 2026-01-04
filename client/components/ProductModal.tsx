@@ -15,6 +15,7 @@ import Button from "./Button";
 import EcoBreakdown from "./EcoBreakdown";
 import { useCart } from "@/lib/cart-context";
 import { useState } from "react";
+import { AnimatedCircularProgressBar } from "@/components/ui/animated-circular-progress-bar";
 
 interface ProductModalProps {
   product: Product;
@@ -50,8 +51,8 @@ export default function ProductModal({ product, layoutId, onClose }: ProductModa
   const { addToCart } = useCart();
   const [addedToCart, setAddedToCart] = useState(false);
 
-  const handleAddToCart = () => {
-    const success = addToCart(product);
+  const handleAddToCart = async () => {
+    const success = await addToCart(product);
     if (success) {
       setAddedToCart(true);
       setTimeout(() => setAddedToCart(false), 2000);
@@ -59,7 +60,7 @@ export default function ProductModal({ product, layoutId, onClose }: ProductModa
   };
 
   return (
-    <div className="fixed inset-0 grid place-items-center z-[100] p-4">
+    <div className="fixed inset-0 flex items-center justify-center z-[100] p-4 gap-8">
       {/* Close Button */}
       <motion.button
         key={`button-${layoutId}`}
@@ -73,10 +74,10 @@ export default function ProductModal({ product, layoutId, onClose }: ProductModa
         <CloseIcon />
       </motion.button>
 
-      {/* Modal Content */}
+      {/* Modal Content - Fixed Width */}
       <motion.div
         layoutId={layoutId}
-        className="w-full max-w-4xl h-full md:h-fit md:max-h-[90%] flex flex-col bg-white rounded-3xl overflow-hidden shadow-2xl"
+        className="w-[800px] h-full md:h-fit md:max-h-[90%] flex flex-col bg-white rounded-3xl overflow-hidden shadow-2xl shrink-0"
       >
         {/* Image Section */}
         <motion.div layoutId={`image-${layoutId}`} className="relative w-full aspect-video flex-shrink-0 overflow-hidden">
@@ -197,6 +198,98 @@ export default function ProductModal({ product, layoutId, onClose }: ProductModa
             </motion.div>
           </div>
         </div>
+      </motion.div>
+
+      {/* Circular Progress Bar - Positioned to the right with spacing */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.8 }}
+        className="flex flex-col items-center gap-4 shrink-0"
+      >
+        <div
+          className="relative"
+          style={{
+            filter: `drop-shadow(0 0 10px ${
+              product.eco_score < 33
+                ? "rgba(220, 38, 38, 0.6)"
+                : product.eco_score < 66
+                ? "rgba(245, 158, 11, 0.6)"
+                : "rgba(74, 222, 128, 0.6)"
+            })`
+          }}
+        >
+          <AnimatedCircularProgressBar
+            value={product.eco_score}
+            max={100}
+            min={0}
+            gaugePrimaryColor={
+              product.eco_score < 33
+                ? "rgb(220, 38, 38)" // red
+                : product.eco_score < 66
+                ? "rgb(245, 158, 11)" // yellow/amber
+                : "rgb(74, 222, 128)" // lighter green
+            }
+            gaugeSecondaryColor="rgba(0, 0, 0, 0.1)"
+            className="size-32"
+          />
+        </div>
+        <span
+          className="text-xs text-white font-medium bg-black/80 px-2 py-1 rounded"
+          style={{
+            textShadow: `0 0 8px ${
+              product.eco_score < 33
+                ? "rgba(220, 38, 38, 0.8)"
+                : product.eco_score < 66
+                ? "rgba(245, 158, 11, 0.8)"
+                : "rgba(74, 222, 128, 0.8)"
+            }`
+          }}
+        >
+          Eco Score
+        </span>
+
+        {/* Eco Breakdown Progress Bars */}
+        {product.eco_breakdown && (
+          <div className="w-64">
+            <h3 className="text-sm font-semibold text-white mb-3 text-center bg-black/80 px-2 py-1 rounded">
+              Sustainability Breakdown
+            </h3>
+            <div className="space-y-2">
+              {Object.entries(product.eco_breakdown).map(([key, value]) => {
+                const percentage = (value / 30) * 100;
+                const color = percentage < 33
+                  ? "rgb(220, 38, 38)"
+                  : percentage < 66
+                  ? "rgb(245, 158, 11)"
+                  : "rgb(74, 222, 128)";
+
+                return (
+                  <div key={key}>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs font-medium text-white capitalize bg-black/80 px-2 py-0.5 rounded">
+                        {key.replace('_', ' ')}
+                      </span>
+                      <span className="text-xs font-semibold text-white bg-black/80 px-2 py-0.5 rounded">
+                        {value}/30
+                      </span>
+                    </div>
+                    <div className="w-full bg-black/20 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${percentage}%`,
+                          backgroundColor: color,
+                          boxShadow: `0 0 8px ${color}`
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </motion.div>
     </div>
   );

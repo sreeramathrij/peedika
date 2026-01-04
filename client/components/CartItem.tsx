@@ -23,13 +23,15 @@ export default function CartItem({ item }: CartItemProps) {
     <div className="flex gap-4 p-4 bg-white border border-border-base rounded-lg">
       {/* Product Image */}
       <div className="relative w-24 h-24 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
-        <Image
-          src={item.image}
-          alt={item.name}
-          fill
-          className="object-cover"
-          sizes="96px"
-        />
+        {item.image && (
+          <Image
+            src={item.image}
+            alt={item.name || "Product image"}
+            fill
+            className="object-cover"
+            sizes="96px"
+          />
+        )}
       </div>
 
       {/* Product Details */}
@@ -49,7 +51,7 @@ export default function CartItem({ item }: CartItemProps) {
         <div className="flex items-center justify-between mt-4">
           <div className="flex items-center gap-2">
             <button
-              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+              onClick={() => void updateQuantity(item.productId, item.quantity - 1)}
               className="w-8 h-8 flex items-center justify-center border border-border-base rounded hover:bg-gray-50 transition-colors"
               aria-label="Decrease quantity"
             >
@@ -70,7 +72,7 @@ export default function CartItem({ item }: CartItemProps) {
             </span>
 
             <button
-              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+              onClick={() => void updateQuantity(item.productId, item.quantity + 1)}
               className="w-8 h-8 flex items-center justify-center border border-border-base rounded hover:bg-gray-50 transition-colors"
               aria-label="Increase quantity"
             >
@@ -92,7 +94,7 @@ export default function CartItem({ item }: CartItemProps) {
           </div>
 
           <button
-            onClick={() => removeFromCart(item.id)}
+            onClick={() => void removeFromCart(item.productId)}
             className="text-sm text-text-muted hover:text-eco-low transition-colors"
           >
             Remove

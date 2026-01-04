@@ -13,17 +13,19 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { useRouter } from "next/navigation";
 import { Product } from "./products";
 import { useAuth } from "./auth-context";
+import { api } from "./api";
 
 export interface CartItem extends Product {
   quantity: number;
+  productId: string;
 }
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (product: Product) => boolean;
-  removeFromCart: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
-  clearCart: () => void;
+  addToCart: (product: Product) => Promise<boolean>;
+  removeFromCart: (productId: string) => Promise<void>;
+  updateQuantity: (productId: string, quantity: number) => Promise<void>;
+  clearCart: () => Promise<void>;
   totalItems: number;
   totalPrice: number;
 }
@@ -32,78 +34,147 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
   const { isAuthenticated } = useAuth();
   const router = useRouter();
 
-  // Load cart from localStorage on mount
-  useEffect(() => {
-    const savedCart = localStorage.getItem("cart");
-    if (savedCart) {
-      try {
-        setItems(JSON.parse(savedCart));
-      } catch (error) {
-        console.error("Failed to parse cart from localStorage:", error);
+  const mapCartItems = (cart: any): CartItem[] => {
+    if (!cart || !Array.isArray(cart.items)) return [];
+
+    return cart.items.map((item: any) => {
+      const product = item.product ?? {};
+      // Extract the MongoDB _id properly (could be string or object with toString())
+      const mongoId = typeof product._id === 'string' 
+        ? product._id 
+        : product._id?.toString?.() || product._id?._id || "";
+      const productId = mongoId || product.id || "";
+
+      if (!productId) {
+        console.warn("Cart item missing productId", { item, product });
       }
-    }
-    setIsLoaded(true);
-  }, []);
 
-  // Save cart to localStorage whenever it changes
+      return {
+        ...product,
+        id: product.id ?? mongoId,
+        _id: mongoId,
+        productId,
+        quantity: item.quantity ?? 1,
+        price: item.lockedPrice ?? product.price ?? 0,
+        eco_score: product.eco_score ?? item.eco_score_snapshot ?? 0,
+        image: product.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80",
+        name: product.name || "Unknown Product",
+        brand: product.brand || "",
+        category: product.category || "",
+      } as CartItem;
+    });
+  };
+
   useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem("cart", JSON.stringify(items));
-    }
-  }, [items, isLoaded]);
+    let isActive = true;
 
-  const addToCart = (product: Product): boolean => {
-    // Check if user is authenticated
+    const loadCart = async () => {
+      if (!isAuthenticated) {
+        if (isActive) setItems([]);
+        return;
+      }
+
+      try {
+        const cart = await api.getCart();
+        if (isActive) setItems(mapCartItems(cart));
+      } catch (error) {
+        console.error("Failed to fetch cart from API", error);
+        if (isActive) setItems([]);
+      }
+    };
+
+    loadCart();
+
+    return () => {
+      isActive = false;
+    };
+  }, [isAuthenticated]);
+
+  const addToCart = async (product: Product): Promise<boolean> => {
     if (!isAuthenticated) {
-      // Redirect to signin page with return URL
       router.push(`/signin?redirect=/products`);
       return false;
     }
 
-    setItems((currentItems) => {
-      const existingItem = currentItems.find((item) => item.id === product.id);
+    const productId = product._id || product.id;
+    if (!productId) {
+      console.error("Cannot add product without an id");
+      return false;
+    }
 
-      if (existingItem) {
-        // Increase quantity if item already exists
-        return currentItems.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      } else {
-        // Add new item with quantity 1
-        return [...currentItems, { ...product, quantity: 1 }];
-      }
-    });
-
-    return true;
+    try {
+      const cart = await api.addToCart(productId, 1);
+      setItems(mapCartItems(cart));
+      return true;
+    } catch (error: any) {
+      console.error("Failed to add item to cart", {
+        error,
+        message: error?.message,
+        status: error?.status,
+        productId
+      });
+      return false;
+    }
   };
 
-  const removeFromCart = (productId: string) => {
-    setItems((currentItems) =>
-      currentItems.filter((item) => item.id !== productId)
-    );
-  };
-
-  const updateQuantity = (productId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(productId);
+  const removeFromCart = async (productId: string) => {
+    if (!isAuthenticated) {
+      router.push(`/signin?redirect=/cart`);
       return;
     }
 
-    setItems((currentItems) =>
-      currentItems.map((item) =>
-        item.id === productId ? { ...item, quantity } : item
-      )
-    );
+    try {
+      const cart = await api.removeFromCart(productId);
+      setItems(mapCartItems(cart));
+    } catch (error: any) {
+      console.error("Failed to remove item from cart", {
+        error,
+        message: error?.message,
+        status: error?.status,
+        productId
+      });
+    }
   };
 
-  const clearCart = () => {
-    setItems([]);
+  const updateQuantity = async (productId: string, quantity: number) => {
+    if (!isAuthenticated) {
+      router.push(`/signin?redirect=/cart`);
+      return;
+    }
+
+    try {
+      const cart = await api.updateCartItem(productId, quantity);
+      setItems(mapCartItems(cart));
+    } catch (error: any) {
+      console.error("Failed to update cart quantity", {
+        error,
+        message: error?.message,
+        status: error?.status,
+        productId,
+        quantity
+      });
+    }
+  };
+
+  const clearCart = async () => {
+    if (!isAuthenticated) {
+      setItems([]);
+      return;
+    }
+
+    try {
+      await api.clearCart();
+      setItems([]);
+    } catch (error: any) {
+      console.error("Failed to clear cart", {
+        error,
+        message: error?.message,
+        status: error?.status
+      });
+    }
   };
 
   // Calculate totals
