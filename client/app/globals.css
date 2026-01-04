@@ -1,26 +1,52 @@
 @import "tailwindcss";
 
+/* Custom Color Palette for Sustainable Ecommerce */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Background */
+  --bg-offwhite: #f7f7f2;
+
+  /* Text Colors */
+  --text-charcoal: #1f2933;
+  --text-muted: #6b7280;
+
+  /* Eco Accent Colors */
+  --eco-forest: #2f855a;
+  --eco-sage: #a7d7c5;
+
+  /* Borders */
+  --border-color: #e5e7eb;
+
+  /* Eco Score Colors */
+  --eco-high: #2f855a;
+  --eco-medium: #d69e2e;
+  --eco-low: #c53030;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg-offwhite);
+  --color-foreground: var(--text-charcoal);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Custom color tokens for Tailwind */
+  --color-bg-offwhite: #f7f7f2;
+  --color-text-charcoal: #1f2933;
+  --color-text-muted: #6b7280;
+  --color-eco-forest: #2f855a;
+  --color-eco-sage: #a7d7c5;
+  --color-border-base: #e5e7eb;
+  --color-eco-high: #2f855a;
+  --color-eco-medium: #d69e2e;
+  --color-eco-low: #c53030;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-offwhite);
+  color: var(--text-charcoal);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }
