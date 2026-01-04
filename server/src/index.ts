@@ -8,7 +8,8 @@ import { loadModel } from "./ml/classifier";
 
 import productRoutes from "./routes/productRoutes";
 import authRoutes from "./routes/authRoutes";
-import cartRoutes from "./routes/cartRoutes"
+import cartRoutes from "./routes/cartRoutes";
+import copilotRoutes from "./routes/copilotRoutes";
 
 const app: Application = express();
 
@@ -29,6 +30,7 @@ connectDB();
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/copilot", copilotRoutes);
 
 const PORT = process.env.PORT || 5000;
 

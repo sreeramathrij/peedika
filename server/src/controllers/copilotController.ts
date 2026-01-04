@@ -4,11 +4,17 @@ import Cart from "../models/Cart";
 import { detectIntent } from "../services/intent";
 import { generateCopilotResponse } from "../services/llm";
 
-export const copilot = async (req: Request, res: Response) => {
+import { getChatHistory, appendToChatHistory } from "../services/chatMemory";
+import { AuthRequest } from "../middleware/auth";
+
+export const copilot = async (req: AuthRequest, res: Response) => {
   const { message } = req.body;
+  const userId = req.user._id;
+  await appendToChatHistory(userId, "user", message);
+
+  const history = await getChatHistory(userId);
 
   const intent = detectIntent(message);
-
   switch (intent) {
     case "RECOMMEND":
       return recommendProducts(message, res);
@@ -17,10 +23,10 @@ export const copilot = async (req: Request, res: Response) => {
       return evaluateCart(res);
 
     case "GREENER_ALTERNATIVES":
-      return greenerSuggestions(message, res);
+      return greenerSuggestions(userId, message, res);
 
     case "PRODUCT_INFO":
-      return explainProduct(message, res);
+      return explainProduct(userId, message, res);
 
     default:
       return res.json({
@@ -80,7 +86,7 @@ const findProductFromMessage = async (message: string) => {
   });
 };
 
-const greenerSuggestions = async (message: string, res: Response) => {
+const greenerSuggestions = async (userId: string, message: string, res: Response) => {
   const product = await findProductFromMessage(message);
 
   if (!product)
@@ -119,9 +125,12 @@ const greenerSuggestions = async (message: string, res: Response) => {
   let aiMessage = "";
   try {
     aiMessage = await generateCopilotResponse(message, structured);
-  } catch {
+    await appendToChatHistory(userId, "assistant", aiMessage);
+  } catch (err) {
+    console.error("OPENAI ERROR:", err);
     aiMessage = "Here are some greener options 🌿";
   }
+  
 
   return res.json({
     intent: "GREENER_ALTERNATIVES",
@@ -130,7 +139,7 @@ const greenerSuggestions = async (message: string, res: Response) => {
   });
 };
 
-const explainProduct = async (message: string, res: Response) => {
+const explainProduct = async (userId: string, message: string, res: Response) => {
   const product = await findProductFromMessage(message);
 
   if (!product)
@@ -153,15 +162,17 @@ const explainProduct = async (message: string, res: Response) => {
       message,
       structured
     );
+    await appendToChatHistory(userId, "assistant", aiMessage);
     return res.json({
       intent: "PRODUCT_INFO",
       product: structured,
       aiMessage
     });
   } catch (err) {
+    console.error("OPENAI ERROR:", err);
     return res.json({
       fallback: true,
-      response: "I had trouble generating a response, but here are the results 🙂",
+      aiMessage: "I had trouble generating a response, but here are the results 🙂",
       structured
     });
   }
