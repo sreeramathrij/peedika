@@ -8,15 +8,101 @@
  * Shows notice if user is not signed in (optional auth)
  */
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
 import { useAuth } from "@/lib/auth-context";
+import { api } from "@/lib/api";
 import CartItem from "@/components/CartItem";
 import Button from "@/components/Button";
+import GreenerRecommendation from "@/components/GreenerRecommendation";
+
+interface Alternative {
+  id: string;
+  name: string;
+  price: number;
+  eco_score: number;
+  improvementPercent: number;
+}
+
+interface CurrentProduct {
+  id: string;
+  name: string;
+  price: number;
+  eco_score: number;
+  quantity: number;
+}
+
+interface Suggestion {
+  current: CurrentProduct;
+  alternatives: Alternative[];
+}
+
+interface GreenerCartResponse {
+  count: number;
+  suggestions: Suggestion[];
+  message?: string;
+}
 
 export default function CartPage() {
   const { items, totalPrice, clearCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const [greenerSuggestions, setGreenerSuggestions] = useState<Suggestion[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [showCongratulations, setShowCongratulations] = useState(false);
+
+  // Fetch greener recommendations
+  useEffect(() => {
+    const fetchGreenerSuggestions = async () => {
+      if (!isAuthenticated || items.length === 0) return;
+
+      setIsLoadingSuggestions(true);
+      try {
+        console.log("Fetching greener suggestions...");
+        const response = await api.getGreenerCart() as GreenerCartResponse;
+        console.log("Greener cart response:", response);
+        
+        if (response.suggestions && response.suggestions.length > 0) {
+          setGreenerSuggestions(response.suggestions);
+          setShowCongratulations(false);
+          console.log("Found suggestions:", response.suggestions.length);
+        } else {
+          // No suggestions means user has the greenest options!
+          setGreenerSuggestions([]);
+          setShowCongratulations(true);
+          console.log("No suggestions - user has greenest options!");
+        }
+      } catch (error) {
+        console.error("Failed to fetch greener suggestions:", error);
+        setGreenerSuggestions([]);
+        setShowCongratulations(false);
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    };
+
+    fetchGreenerSuggestions();
+  }, [items.length, isAuthenticated]);
+
+  const handleSwapComplete = () => {
+    // Refresh suggestions after a swap
+    setTimeout(async () => {
+      if (isAuthenticated) {
+        try {
+          const response = await api.getGreenerCart() as GreenerCartResponse;
+          if (response.suggestions && response.suggestions.length > 0) {
+            setGreenerSuggestions(response.suggestions);
+            setShowCongratulations(false);
+          } else {
+            setGreenerSuggestions([]);
+            setShowCongratulations(true);
+          }
+        } catch (error) {
+          console.error("Failed to refresh suggestions:", error);
+        }
+      }
+    }, 500);
+  };
 
   // Calculate average eco-score of cart items
   const averageEcoScore =
@@ -132,6 +218,45 @@ export default function CartPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-4">
+          {/* Loading State */}
+          {isLoadingSuggestions && isAuthenticated && (
+            <div className="bg-white border border-border-base rounded-lg p-6 text-center">
+              <div className="animate-pulse">
+                <div className="text-2xl mb-2">🔍</div>
+                <p className="text-sm text-text-muted">
+                  Looking for greener alternatives...
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Congratulations Message for Greenest Cart */}
+          {showCongratulations && isAuthenticated && (
+            <div className="bg-green-50 border-2 border-green-400 rounded-lg p-6 text-center">
+              <div className="text-3xl mb-2">✅</div>
+              <h3 className="text-lg font-semibold text-green-700 mb-1">
+                Congratulations!
+              </h3>
+              <p className="text-sm text-gray-600">
+                You already have the greenest options in your cart.
+              </p>
+            </div>
+          )}
+
+          {/* Greener Recommendations */}
+          {greenerSuggestions.length > 0 && isAuthenticated && (
+            <div className="space-y-4">
+              {greenerSuggestions.map((suggestion, index) => (
+                <GreenerRecommendation
+                  key={suggestion.current.id}
+                  suggestion={suggestion}
+                  onSwapComplete={handleSwapComplete}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Cart Items List */}
           {items.map((item) => (
             <CartItem key={item.id} item={item} />
           ))}

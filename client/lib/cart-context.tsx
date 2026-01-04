@@ -26,6 +26,7 @@ interface CartContextType {
   removeFromCart: (productId: string) => Promise<void>;
   updateQuantity: (productId: string, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
+  refreshCart: () => Promise<void>;
   totalItems: number;
   totalPrice: number;
 }
@@ -177,6 +178,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const refreshCart = async () => {
+    if (!isAuthenticated) {
+      setItems([]);
+      return;
+    }
+
+    try {
+      const cart = await api.getCart();
+      setItems(mapCartItems(cart));
+    } catch (error: any) {
+      console.error("Failed to refresh cart", {
+        error,
+        message: error?.message,
+        status: error?.status
+      });
+    }
+  };
+
   // Calculate totals
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = items.reduce(
@@ -192,6 +211,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         removeFromCart,
         updateQuantity,
         clearCart,
+        refreshCart,
         totalItems,
         totalPrice,
       }}

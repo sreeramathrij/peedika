@@ -13,13 +13,15 @@ const router = Router();
 
 router.use(protect);
 
+// Greener cart routes (must come before base routes to avoid conflicts)
+router.get("/greener", getGreenerCart);
+router.post("/swap", swapCartItem);
+
+// Base cart routes
 router.get("/", getCart);
 router.post("/", addToCart);
 router.patch("/", updateQuantity);
 router.delete("/:productId", removeItem);
 router.delete("/", clearCart);
-
-router.get("/greener", protect, getGreenerCart);
-router.post("/swap", swapCartItem);
 
 export default router;

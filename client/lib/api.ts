@@ -150,6 +150,20 @@ class ApiClient {
     });
   }
 
+  // Greener Cart endpoints
+  async getGreenerCart() {
+    return this.request('/cart/greener', {
+      method: 'GET',
+    });
+  }
+
+  async swapCartItem(oldProductId: string, newProductId: string) {
+    return this.request('/cart/swap', {
+      method: 'POST',
+      body: JSON.stringify({ oldProductId, newProductId }),
+    });
+  }
+
   // Copilot endpoint
   async sendChatMessage(message: string) {
     return this.request('/copilot', {
