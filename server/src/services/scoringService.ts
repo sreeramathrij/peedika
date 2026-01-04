@@ -1,4 +1,4 @@
-import { IProduct } from "../types/Product";
+import { IProduct } from "../models/Product";
 
 export const calculateEcoScore = (product: IProduct): number => {
   let score = 50;
