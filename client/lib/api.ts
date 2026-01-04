@@ -149,6 +149,14 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  // Copilot endpoint
+  async sendChatMessage(message: string) {
+    return this.request('/copilot', {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    });
+  }
 }
 
 export const api = new ApiClient(API_BASE_URL);

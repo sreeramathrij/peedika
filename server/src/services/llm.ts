@@ -2,15 +2,22 @@ import OpenAI from "openai";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+const client = process.env.OPENAI_API_KEY
+  ? new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    })
+  : null;
 
 export const generateCopilotResponse = async (
   userMessage: string,
   structuredContext: any,
   history: { role: "user" | "assistant"; content: string }[] = []
 ): Promise<string> => {
+
+  // If no API key is configured, return a demo response
+  if (!client) {
+    return "I'm a demo chatbot. The OpenAI API key is not configured. In a real implementation, I would connect to an AI service to provide helpful responses about sustainable products and eco-friendly shopping.";
+  }
 
   const messages: ChatCompletionMessageParam[] = [
     {
